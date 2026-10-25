@@ -1,0 +1,43 @@
+name: Fonctionnalité ou tâche
+description: Définir une livraison concrète pour Orbita.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Besoin et résultat attendu
+      description: Quel problème résoudre et quel résultat doit être visible ?
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorité
+      options:
+        - P2 - normale
+        - P1 - importante
+        - P0 - bloquante
+        - P3 - plus tard
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critères d'acceptation
+      description: Écrire des résultats vérifiables sous forme de cases à cocher.
+      placeholder: "- [ ] Le comportement attendu est observable."
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Périmètre et exclusions
+      description: Délimiter cette livraison pour garder une MR ciblée.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dépendances et validation prévue
+      description: Lier les tickets préalables et préciser comment vérifier le résultat.
