@@ -1,0 +1,32 @@
+name: Signaler un bug
+description: Décrire un problème reproductible.
+title: "fix: "
+labels: [bug]
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes de reproduction
+      description: Préciser le contexte et les actions qui déclenchent le problème.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Résultat attendu
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Résultat observé
+      description: Joindre une capture ou des logs sans secret si utile.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Version et environnement
+      placeholder: Commit, système, navigateur ou commande exécutée.
+    validations:
+      required: true
