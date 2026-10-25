@@ -8,12 +8,26 @@ if errorlevel 1 goto docker_missing
 docker info >nul 2>&1
 if errorlevel 1 goto docker_not_running
 
+set "orbita_port="
+for /f "tokens=2 delims=:" %%P in ('docker compose port app 8080 2^>nul') do set "orbita_port=%%P"
+if defined orbita_port (
+    curl.exe --fail --silent "http://127.0.0.1:%orbita_port%/api/health" >nul 2>&1
+    if not errorlevel 1 goto ready
+)
+
 echo Construction et demarrage d'Orbita...
+if not defined ORBITA_PORT set "ORBITA_PORT=8080"
+:select_port
+netstat -ano -p tcp | findstr /R /C:":%ORBITA_PORT% .*LISTENING" >nul 2>&1
+if errorlevel 1 goto port_selected
+echo Port %ORBITA_PORT% deja utilise, recherche du suivant...
+set /a ORBITA_PORT+=1
+goto select_port
+
+:port_selected
+set "orbita_port=%ORBITA_PORT%"
 docker compose up --build -d
 if errorlevel 1 goto startup_failed
-
-set "orbita_port=8080"
-for /f "tokens=2 delims=:" %%P in ('docker compose port app 8080 2^>nul') do set "orbita_port=%%P"
 
 echo Attente du demarrage de l'application...
 set "attempt=0"
@@ -22,7 +36,7 @@ curl.exe --fail --silent "http://127.0.0.1:%orbita_port%/api/health" >nul 2>&1
 if not errorlevel 1 goto ready
 set /a attempt+=1
 if %attempt% geq 60 goto startup_timeout
-timeout /t 2 /nobreak >nul
+powershell.exe -NoProfile -Command "Start-Sleep -Seconds 2"
 goto wait_for_app
 
 :ready
