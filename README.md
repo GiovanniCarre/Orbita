@@ -57,6 +57,10 @@ npm --prefix frontend run build
 
 ## Tickets et merge requests
 
+![Aperçu d'Orbita sur des données fictives de recette](docs/screenshots/orbita-workspace.jpg)
+
+La capture utilise une base de recette séparée ; le produit démarre sans données préremplies.
+
 Un ticket GitHub → une branche `codex/<numero>-<description>` → une PR vers
 `main`. La CI vérifie le lien au ticket, Java, TypeScript, les tests et le
 formatage. `main` exige les contrôles verts et une fusion par squash.

@@ -130,7 +130,7 @@ class WorkspaceIntegrationTest {
   }
 
   @Test
-  void updatesEarlierAuditVisibilityWhenANoteBecomesPrivate() throws Exception {
+  void preservesPrivateAuditHistoryAcrossVisibilityChanges() throws Exception {
     Client owner = registered();
     Client member = registered();
     owner.call(
@@ -152,6 +152,22 @@ class WorkspaceIntegrationTest {
             .call("GET", owner.path("/activity"), null, 200)
             .toString()
             .contains("Titre confidentiel"));
+    member.call(
+        "PUT",
+        owner.path("/notes/" + note.get("id").asText()),
+        Map.of(
+            "title",
+            "Version partagée",
+            "content",
+            "Contenu public",
+            "isPrivate",
+            false,
+            "version",
+            1),
+        200);
+    String sharedActivity = owner.call("GET", owner.path("/activity"), null, 200).toString();
+    assertTrue(sharedActivity.contains("Version partagée"));
+    assertFalse(sharedActivity.contains("Titre confidentiel"));
   }
 
   @Test
@@ -193,6 +209,13 @@ class WorkspaceIntegrationTest {
     owner.call("POST", owner.path("/projects"), input, 400);
     input.put("website", "https://example.org");
     input.put("githubRepository", "../other/repo");
+    owner.call("POST", owner.path("/projects"), input, 400);
+    input.put("githubRepository", "../issues");
+    owner.call("POST", owner.path("/projects"), input, 400);
+    input.put("githubRepository", "owner/..");
+    owner.call("POST", owner.path("/projects"), input, 400);
+    input.put("githubRepository", "owner/repository");
+    input.put("website", "https://user:fixture-password@example.org");
     owner.call("POST", owner.path("/projects"), input, 400);
   }
 

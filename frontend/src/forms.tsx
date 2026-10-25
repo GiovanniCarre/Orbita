@@ -307,7 +307,6 @@ export function EditorDialog({
                     name="githubRepository"
                     placeholder="propriétaire/dépôt"
                     defaultValue={editor.item?.githubRepository}
-                    pattern="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"
                     maxLength={200}
                   />
                 </Field>

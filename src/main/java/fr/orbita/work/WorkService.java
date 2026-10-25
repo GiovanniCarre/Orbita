@@ -56,7 +56,10 @@ public class WorkService {
   @Transactional
   public Project saveProject(String space, String id, ProjectInput input, Access.Actor actor) {
     String repository = text(input.githubRepository());
-    if (!repository.isEmpty() && !repository.matches("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")) {
+    if (!repository.isEmpty()
+        && (!repository.matches("[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}")
+            || repository.endsWith("/.")
+            || repository.endsWith("/.."))) {
       throw ApiException.invalid("Le dépôt GitHub doit suivre propriétaire/dépôt.");
     }
     String website = website(input.website());
@@ -327,12 +330,15 @@ public class WorkService {
               id,
               input.version()));
     }
-    // Apply the current visibility to earlier events as well.
-    jdbc.update(
-        "UPDATE activity SET visible_to = ? WHERE space_id = ? AND entity_id = ? AND category = 'NOTE'",
-        input.isPrivate() ? actor.id() : null,
-        space,
-        id);
+    // Hiding a note also hides its old public events. Sharing the current version
+    // must never publish titles from older private versions.
+    if (input.isPrivate()) {
+      jdbc.update(
+          "UPDATE activity SET visible_to = ? WHERE space_id = ? AND entity_id = ? AND category = 'NOTE'",
+          actor.id(),
+          space,
+          id);
+    }
     // Private note titles must not leak through the shared activity stream.
     audit.add(
         space,
@@ -440,12 +446,15 @@ public class WorkService {
     }
     try {
       URI uri = URI.create(value);
-      if (!List.of("http", "https").contains(uri.getScheme()) || uri.getHost() == null) {
+      if (!List.of("http", "https").contains(uri.getScheme())
+          || uri.getHost() == null
+          || uri.getUserInfo() != null) {
         throw new IllegalArgumentException();
       }
       return uri.toASCIIString();
     } catch (IllegalArgumentException exception) {
-      throw ApiException.invalid("L'adresse du site doit commencer par https:// ou http://.");
+      throw ApiException.invalid(
+          "Indiquez une adresse http:// ou https:// sans identifiants intégrés.");
     }
   }
 }
