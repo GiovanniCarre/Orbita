@@ -1,0 +1,13 @@
+.git
+.local
+.env
+.env.*
+!.env.example
+node_modules
+frontend/node_modules
+frontend/dist
+frontend/*.tsbuildinfo
+target
+output
+tmp
+__pycache__

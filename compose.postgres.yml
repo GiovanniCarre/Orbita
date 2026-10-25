@@ -1,0 +1,25 @@
+services:
+  app:
+    environment:
+      ORBITA_DATABASE_URL: jdbc:postgresql://database:5432/orbita
+      ORBITA_DATABASE_USER: orbita
+      ORBITA_DATABASE_PASSWORD: "${ORBITA_DATABASE_PASSWORD:?Définissez ORBITA_DATABASE_PASSWORD dans .env}"
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: orbita
+      POSTGRES_USER: orbita
+      POSTGRES_PASSWORD: "${ORBITA_DATABASE_PASSWORD:?Définissez ORBITA_DATABASE_PASSWORD dans .env}"
+    volumes:
+      - orbita-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbita -d orbita"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+volumes:
+  orbita-postgres:

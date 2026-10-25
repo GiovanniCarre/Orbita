@@ -1,0 +1,54 @@
+server:
+  address: ${ORBITA_BIND_ADDRESS:127.0.0.1}
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+  servlet:
+    session:
+      timeout: 8h
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${ORBITA_SECURE_COOKIES:false}
+spring:
+  application:
+    name: orbita
+  datasource:
+    url: ${ORBITA_DATABASE_URL:jdbc:h2:file:./.local/data/orbita;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}
+    username: ${ORBITA_DATABASE_USER:sa}
+    password: ${ORBITA_DATABASE_PASSWORD:}
+  flyway:
+    enabled: true
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  threads:
+    virtual:
+      enabled: true
+  mail:
+    host: ${ORBITA_SMTP_HOST:}
+    port: ${ORBITA_SMTP_PORT:587}
+    username: ${ORBITA_SMTP_USER:}
+    password: ${ORBITA_SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${ORBITA_SMTP_AUTH:true}
+      mail.smtp.starttls.enable: ${ORBITA_SMTP_STARTTLS:true}
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 15000
+      mail.smtp.writetimeout: 15000
+orbita:
+  ai:
+    provider: ${ORBITA_AI_PROVIDER:disabled}
+    model: ${ORBITA_AI_MODEL:}
+    openai-key: ${OPENAI_API_KEY:}
+    ollama-url: ${ORBITA_OLLAMA_URL:http://localhost:11434}
+    daily-limit: ${ORBITA_AI_DAILY_LIMIT:50}
+  mail-from: ${ORBITA_MAIL_FROM:}
+  smtp-space-id: ${ORBITA_SMTP_SPACE_ID:}
+  github-token: ${ORBITA_GITHUB_TOKEN:}
+  github-space-id: ${ORBITA_GITHUB_SPACE_ID:}
+  timezone: ${ORBITA_TIMEZONE:Europe/Paris}
+logging:
+  level:
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR

@@ -1,0 +1,21 @@
+name: orbita
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:${ORBITA_PORT:-8080}:8080"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ORBITA_BIND_ADDRESS: 0.0.0.0
+      ORBITA_DATABASE_URL: "${ORBITA_DATABASE_URL:-jdbc:h2:file:/data/orbita;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}"
+    volumes:
+      - orbita-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    stop_grace_period: 30s
+    mem_limit: 768m
+volumes:
+  orbita-data:
