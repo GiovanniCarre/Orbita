@@ -10,6 +10,9 @@ Depuis la racine du dépôt :
 docker compose up --build -d
 ~~~
 
+Sous Windows, `run.cmd` fait la même chose, attend que l'application réponde
+puis ouvre le navigateur. Docker Desktop doit être démarré.
+
 Ouvrir [Orbita](http://localhost:8080), créer un compte puis un espace.
 Aucun compte, mot de passe ou jeu de données n'est créé automatiquement.
 

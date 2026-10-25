@@ -13,6 +13,9 @@ Docker avec Docker Compose suffit :
 docker compose up --build -d
 ~~~
 
+Sous Windows, lancez `run.cmd` : il construit et démarre Orbita, attend son
+démarrage puis ouvre l'application dans le navigateur.
+
 Ouvrir [Orbita sur localhost](http://localhost:8080), créer un compte et son
 premier espace. Les données sont conservées dans un volume. L'application démarre
 vide, sans compte ni intégration externe préconfigurés.
