@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Orbita — Guide de connexion</title>
+    <link rel="icon" href="/favicon.svg" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f6f7f9;
+        color: #30473a;
+        font: 15px/1.9 system-ui;
+      }
+      main {
+        max-width: 760px;
+        margin: 50px auto;
+        padding: 35px;
+        background: #fff;
+        border: 1px solid #e3e9e1;
+        border-radius: 16px;
+      }
+      h1 {
+        font-size: 30px;
+        letter-spacing: -1px;
+      }
+      h2 {
+        font-size: 19px;
+        margin-top: 30px;
+      }
+      p {
+        color: #66786b;
+      }
+      code {
+        font-size: 12px;
+        background: #f0f4eb;
+        padding: 3px 5px;
+        border-radius: 4px;
+      }
+      pre {
+        white-space: pre-wrap;
+        background: #f0f4eb;
+        padding: 18px;
+        border-radius: 8px;
+      }
+      a {
+        color: #2f694b;
+      }
+      @media (max-width: 600px) {
+        main {
+          margin: 15px;
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a href="/">← Retrouver mon espace</a>
+      <h1>Vos connexions, à votre rythme.</h1>
+      <p>
+        Orbita fonctionne sans compte externe pour gérer les projets, tâches, contacts, notes et
+        rapports. Les intégrations sont configurées par la personne qui administre le serveur ; les
+        clés ne sont jamais affichées dans l’application.
+      </p>
+      <h2>Activer l’assistant IA</h2>
+      <p>
+        Dans le dépôt, copiez <code>.env.example</code> vers <code>.env</code>. Choisissez
+        <code>ORBITA_AI_PROVIDER=openai</code> avec une clé <code>OPENAI_API_KEY</code>, ou
+        <code>ORBITA_AI_PROVIDER=ollama</code> avec l’adresse de votre serveur Ollama. Renseignez le
+        modèle exact dans <code>ORBITA_AI_MODEL</code>.
+      </p>
+      <p>
+        Une fois connecté, l’assistant prépare des propositions. Seule votre validation crée les
+        tâches. Les notes privées sont exclues du contexte automatique.
+      </p>
+      <h2>Envoyer des mails</h2>
+      <p>
+        Renseignez les paramètres SMTP et l’expéditeur dans <code>.env</code>. Copiez l’identifiant
+        de votre espace depuis Paramètres vers <code>ORBITA_SMTP_SPACE_ID</code>. Cette connexion
+        sera utilisable uniquement dans cet espace.
+      </p>
+      <p>
+        L’envoi est réservé aux administrateurs, avec relecture et confirmation. Les oppositions du
+        CRM sont vérifiées avant envoi. La synchronisation des mails entrants n’est pas encore
+        disponible.
+      </p>
+      <h2>Lire l’activité GitHub</h2>
+      <p>
+        Associez un dépôt sous la forme <code>propriétaire/dépôt</code> à un projet et cliquez sur «
+        Lire l’activité ». La lecture publique fonctionne sans jeton. Pour un dépôt privé,
+        configurez un jeton limité et <code>ORBITA_GITHUB_SPACE_ID</code>. Orbita n’effectue aucune
+        écriture GitHub dans cette version.
+      </p>
+      <h2>Appliquer une configuration</h2>
+      <p>Après modification de <code>.env</code>, recréez le conteneur :</p>
+      <pre>docker compose up -d --build</pre>
+      <p>
+        Le guide complet de lancement, de sauvegarde et des limites de cette version est fourni dans
+        <code>docs/running.md</code> et <code>docs/delivery.md</code> du dépôt. Cette version est un
+        pilote local ; les parcours de commercialisation restent à compléter.
+      </p>
+    </main>
+  </body>
+</html>

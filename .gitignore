@@ -18,6 +18,11 @@ coverage/
 node_modules/
 dist/
 build/
+target/
+*.tsbuildinfo
+*.db
+*.mv.db
+*.trace.db
 
 # OS and editor files
 .DS_Store

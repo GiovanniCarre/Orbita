@@ -1,41 +1,69 @@
 # Orbita
 
-Orbita est le projet de gestionnaire IA de projets de Giovanni. Sa vocation :
-transformer un objectif en plan et en tickets, rendre les priorités visibles et
-suivre le développement jusqu'aux merge requests.
+Un espace de travail pour faire avancer ses projets avec l'IA : projets, tâches,
+contacts, notes et bilans, dans une interface française.
 
-## État actuel
+**Java 25 · Spring Boot 4.1.2 · Maven · React · TypeScript**
 
-Le dépôt contient le socle de contribution, la CI et le premier backlog.
-L'application, le stockage et l'intégration IA restent à implémenter.
+## Démarrer
 
-## Développer proprement
+Docker avec Docker Compose suffit :
 
-1. Définir un ticket GitHub avec un résultat attendu et des critères d'acceptation.
-2. Créer une branche `codex/<numero-du-ticket>-<description>` depuis `main`.
-3. Développer une livraison ciblée et exécuter les contrôles adaptés.
-4. Ouvrir une pull request vers `main`, avec `Closes #<numero>` dans son corps.
-5. Relire les changements et les résultats de CI, puis fusionner par squash.
+~~~sh
+docker compose up --build -d
+~~~
 
-Sur GitHub, une merge request (MR) s'appelle une pull request (PR).
-`main` est la branche d'intégration : les tickets sont des issues GitHub, liés aux PR.
+Ouvrir [Orbita sur localhost](http://localhost:8080), créer un compte et son
+premier espace. Les données sont conservées dans un volume. L'application démarre
+vide, sans compte ni intégration externe préconfigurés.
 
-## Vérification locale du socle
+Le [guide de lancement](docs/running.md) décrit aussi Maven sans Docker,
+PostgreSQL, OpenAI, Ollama, SMTP et GitHub.
 
-Python 3.12 ou plus récent suffit ; aucune dépendance externe n'est nécessaire.
-Ce choix concerne les outils du dépôt et ne fixe pas la stack de l'application.
+## Disponible dans cette version
 
-```sh
-python -m unittest discover -s tests -v
-```
+- Plusieurs espaces isolés, comptes, membres et rôles.
+- Projets avec objectifs, état, couleur et archivage.
+- Tableau de tâches, priorités, responsables, échéances et blocages.
+- CRM avec suivi des contacts, recherche, CSV et exclusions de prospection.
+- Notes partagées ou privées, protégées aussi dans les exports et le contexte IA.
+- Plans IA structurés, modifiables, puis créés en tâches après validation.
+- Brouillons et envoi SMTP confirmé, lorsque le serveur est configuré.
+- Lecture de l'activité des dépôts GitHub associés aux projets.
+- Indicateurs réels, rapports, impression/PDF et export JSON de l'espace.
+- Interface responsive et page de repli hors connexion sans cache métier.
 
-La CI exécute ces tests et vérifie pour chaque PR le titre, la branche, le ticket
-lié et l'existence d'une issue ouverte dans ce dépôt.
+Cette version est une première tranche locale. Gmail entrant, les campagnes,
+Stripe/AdSense/GA4, les push et la commercialisation SaaS restent à livrer.
+Voir la [matrice fonctionnelle](docs/delivery.md).
 
-## Documentation
+## Développer et vérifier
 
-- [Vision et périmètre du produit](docs/vision.md)
-- [Backlog et ordre de livraison](docs/backlog.md)
-- [Contribution et règles de fusion](CONTRIBUTING.md)
-- [Consignes pour les agents de développement](AGENTS.md)
-- [Configuration de la protection de main](docs/github.md)
+JDK 25 et Node.js 24 LTS ; Maven est fourni par le Wrapper.
+
+~~~sh
+./mvnw -Pweb verify
+java -jar target/orbita-0.1.0-SNAPSHOT.jar
+~~~
+
+Sous Windows, utiliser `.\mvnw.cmd`. Le profil `web` construit l'interface et
+l'inclut dans le JAR. Le guide décrit le rechargement du frontend en développement.
+
+~~~sh
+./mvnw verify
+npm --prefix frontend test
+npm --prefix frontend run build
+~~~
+
+## Tickets et merge requests
+
+Un ticket GitHub → une branche `codex/<numero>-<description>` → une PR vers
+`main`. La CI vérifie le lien au ticket, Java, TypeScript, les tests et le
+formatage. `main` exige les contrôles verts et une fusion par squash.
+
+- [Contribution](CONTRIBUTING.md)
+- [Consignes pour les agents](AGENTS.md)
+- [Vision du produit](docs/vision.md)
+- [Backlog](docs/backlog.md)
+- [Décision d'architecture Java](docs/architecture/0001-java-workspace.md)
+- [Livraison et limites](docs/delivery.md)

@@ -23,13 +23,24 @@ Privilégier une livraison utile par PR. Documenter les décisions importantes e
 tester les comportements modifiés ainsi que leurs erreurs significatives.
 Ne pas ajouter de dépendance sans besoin concret ni commettre de secrets.
 
-Pour le socle actuel :
+Pour l'application (Java 25 et Node 24) :
+
+```sh
+./mvnw verify
+npm --prefix frontend test
+npm --prefix frontend run build
+npm --prefix frontend run format:check
+```
+
+Sous Windows, utiliser `.\mvnw.cmd`. Le guide `docs/running.md` décrit le lancement
+par Docker et le profil Maven `web`. Java est formaté avec Spotless et le frontend
+avec Prettier. Les vérifications du flux de contribution restent :
 
 ```sh
 python -m unittest discover -s tests -v
 ```
 
-Les futurs tickets applicatifs ajouteront leurs commandes de lancement et de test.
+Les nouveaux tickets complètent les contrôles selon les comportements modifiés.
 
 ## Ouvrir une MR / PR
 
