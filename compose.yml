@@ -1,0 +1,43 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Copier .env.example vers .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Definir POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:?Definir POSTGRES_DB}
+      DATABASE_USER: ${POSTGRES_USER:?Definir POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD}
+      META_FACEBOOK_APP_ID: ${META_FACEBOOK_APP_ID:-}
+      META_FACEBOOK_APP_SECRET: ${META_FACEBOOK_APP_SECRET:-}
+      META_INSTAGRAM_APP_ID: ${META_INSTAGRAM_APP_ID:-}
+      META_INSTAGRAM_APP_SECRET: ${META_INSTAGRAM_APP_SECRET:-}
+      META_TOKEN_ENCRYPTION_KEY: ${META_TOKEN_ENCRYPTION_KEY:-}
+      META_GRAPH_API_VERSION: ${META_GRAPH_API_VERSION:-v26.0}
+      ORBITA_API_PUBLIC_URL: ${ORBITA_API_PUBLIC_URL:-http://localhost:8000}
+      ORBITA_FRONTEND_PUBLIC_URL: ${ORBITA_FRONTEND_PUBLIC_URL:-http://localhost:5173}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - backend
+volumes:
+  database:
