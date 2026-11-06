@@ -1,0 +1,7 @@
+[Unit]
+Description=Sauvegarde de la base Orbita
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/orbita/deploy/backup.sh

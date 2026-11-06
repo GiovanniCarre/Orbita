@@ -8,6 +8,8 @@ Installer Python 3.12, Node 24 et Docker Desktop, puis lancer `scripts\run.cmd`.
 
 Les scripts `scripts\format.cmd`, `scripts\test.cmd`, `scripts\e2e.cmd` et `scripts\quality.cmd` installent les dépendances locales nécessaires. Playwright nécessite une installation initiale du navigateur : `cd frontend && npx playwright install chromium`. `scripts\agent.cmd` affiche les règles du projet.
 
+Mise en production sur le VPS, sans Docker : voir [le guide de déploiement](docs/deploy.md).
+
 Pour les autres systèmes : `python scripts/tasks.py run|format|test|e2e|quality|agent`.
 
 Voir [l'architecture](docs/architecture.md), [les règles de contribution](CONTRIBUTING.md) et [la feuille de route](docs/backlog.md). Le projet ne prétend pas livrer les intégrations futures ni migrer les données de l'ancienne branche Java.

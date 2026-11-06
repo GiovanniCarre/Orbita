@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncIterator, Iterable
 from contextlib import asynccontextmanager
 
@@ -6,10 +7,19 @@ from fastapi.responses import JSONResponse
 
 from app.auth.routes import router as auth_router
 from app.auth.session import current_email
+from app.frontend import mount_frontend
 from app.registry import configured_modules, load_modules
 
 PUBLIC_PATHS = {"/api/health"}
 PUBLIC_PREFIXES = ("/api/auth/",)
+DOCS_PATHS = {"/docs", "/docs/oauth2-redirect", "/redoc", "/openapi.json"}
+
+
+def requires_session(path: str) -> bool:
+    """API data and its documentation need a session; the compiled interface does not."""
+    if path in PUBLIC_PATHS or path.startswith(PUBLIC_PREFIXES):
+        return False
+    return path.startswith("/api/") or path == "/api" or path in DOCS_PATHS
 
 
 def create_app(module_names: Iterable[str] | None = None) -> FastAPI:
@@ -26,9 +36,7 @@ def create_app(module_names: Iterable[str] | None = None) -> FastAPI:
 
     @application.middleware("http")
     async def require_session(request: Request, call_next) -> Response:
-        path = request.url.path
-        public = path in PUBLIC_PATHS or path.startswith(PUBLIC_PREFIXES)
-        if not public and current_email(request) is None:
+        if requires_session(request.url.path) and current_email(request) is None:
             return JSONResponse({"detail": "Authentification requise"}, status_code=401)
         return await call_next(request)
 
@@ -44,6 +52,10 @@ def create_app(module_names: Iterable[str] | None = None) -> FastAPI:
 
     for module in modules:
         application.include_router(module.router, prefix="/api")
+
+    static_dir = os.getenv("ORBITA_STATIC_DIR", "")
+    if static_dir:
+        mount_frontend(application, static_dir)
     return application
 
 

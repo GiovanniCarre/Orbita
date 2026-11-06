@@ -12,3 +12,6 @@ frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
 .env
+# Server home of the orbita user (deploy/update.sh)
+.npm/
+.cache/

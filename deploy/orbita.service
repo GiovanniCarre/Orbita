@@ -1,0 +1,24 @@
+[Unit]
+Description=Orbita (API et interface)
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+User=orbita
+Group=orbita
+WorkingDirectory=/opt/orbita/backend
+EnvironmentFile=/etc/orbita/orbita.env
+# Écoute uniquement en local : Caddy gère le HTTPS et transmet l'adresse IP réelle.
+ExecStart=/opt/orbita/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-server-header
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

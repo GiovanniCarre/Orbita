@@ -1,5 +1,7 @@
 # Exécution
 
+Ce guide couvre le développement local avec Docker. Pour le VPS, voir [deploy.md](deploy.md).
+
 Copier `.env.example` vers `.env`, définir un mot de passe PostgreSQL local et générer `META_TOKEN_ENCRYPTION_KEY` avec `openssl rand -hex 32`. `scripts\run.cmd` construit et démarre les services Docker. `docker compose down` les arrête sans effacer les données. La commande avec `-v` efface les volumes : ne pas l'utiliser sans sauvegarde.
 
 `ORBITA_MODULES` choisit les modules activés, par exemple `ORBITA_MODULES=social` ; vide, tous les modules sont actifs. Redémarrer l'API après modification.
