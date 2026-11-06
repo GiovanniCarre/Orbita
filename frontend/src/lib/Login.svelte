@@ -23,7 +23,8 @@
 </script>
 
 <main class="login">
-  <span class="brand">◉ ORBITA</span>
+  <div class="brand"><img src="/orbita-logo.png" alt="Orbita" /></div>
+  <p class="tagline">Vos projets avancent pas à pas.</p>
   <h1>Connexion</h1>
   <form onsubmit={submit}>
     <label for="email">Adresse e-mail</label>
@@ -57,9 +58,20 @@
     color: #acafbd;
   }
   .brand {
-    font-weight: 800;
-    letter-spacing: 0.2em;
-    color: #f5f4f0;
+    display: inline-flex;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fff;
+  }
+  .brand img {
+    display: block;
+    width: 180px;
+    height: auto;
+  }
+  .tagline {
+    color: #acafbd;
+    font-size: 0.95rem;
+    margin: 14px 0 0;
   }
   h1 {
     color: #f5f4f0;

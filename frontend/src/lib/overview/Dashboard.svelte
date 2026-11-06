@@ -17,11 +17,13 @@
 <svelte:head><title>Orbita — Tableau de bord</title></svelte:head>
 <main>
   <header>
-    <span class="brand">◉ ORBITA</span><span class="tag">ESPACE PERSONNEL</span>
+    <span class="brand"><img src="/orbita-logo.png" alt="Orbita" /></span><span
+      class="tag">ESPACE PERSONNEL</span
+    >
   </header>
   <section>
     <p class="eyebrow">VOTRE ESPACE DE TRAVAIL</p>
-    <h1>Tout votre univers,<br /><em>au même endroit.</em></h1>
+    <h1>Vos projets avancent,<br /><em>pas à pas.</em></h1>
     <p class="intro">
       Retrouvez vos projets et automatisez leur suivi, à votre rythme.
     </p>
@@ -66,8 +68,15 @@
     padding-bottom: 28px;
   }
   .brand {
-    font-weight: 800;
-    letter-spacing: 0.2em;
+    display: inline-flex;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: #fff;
+  }
+  .brand img {
+    display: block;
+    width: 150px;
+    height: auto;
   }
   .tag,
   .eyebrow,
