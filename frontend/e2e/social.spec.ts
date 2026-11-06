@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("prépare une vidéo et sélectionne les réseaux sans publication", async ({
   page,

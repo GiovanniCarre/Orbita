@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from conftest import sign_in
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
@@ -33,20 +34,20 @@ def test_unknown_module_is_rejected():
 
 
 def test_core_runs_without_modules():
-    client = TestClient(main.create_app([]))
+    client = sign_in(TestClient(main.create_app([])))
     assert client.get("/api/health").json() == {"status": "ok"}
     assert client.get("/api/modules").json() == {"modules": []}
 
 
 def test_overview_runs_alone():
-    client = TestClient(main.create_app(["overview"]))
+    client = sign_in(TestClient(main.create_app(["overview"])))
     assert client.get("/api/modules").json() == {"modules": ["overview"]}
     assert client.get("/api/integrations").status_code == 200
     assert client.get("/api/social/meta/availability").status_code == 404
 
 
 def test_social_runs_alone():
-    client = TestClient(main.create_app(["social"]))
+    client = sign_in(TestClient(main.create_app(["social"])))
     assert client.get("/api/modules").json() == {"modules": ["social"]}
     assert client.get("/api/social/meta/availability").status_code == 200
     assert client.get("/api/integrations").status_code == 404

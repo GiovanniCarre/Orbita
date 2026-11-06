@@ -4,7 +4,17 @@ Copier `.env.example` vers `.env`, définir un mot de passe PostgreSQL local et 
 
 `ORBITA_MODULES` choisit les modules activés, par exemple `ORBITA_MODULES=social` ; vide, tous les modules sont actifs. Redémarrer l'API après modification.
 
-Le frontend et l'API sont liés à `127.0.0.1`. Cette configuration est destinée au développement, sans authentification et ne doit pas être exposée sur Internet. PostgreSQL conserve les comptes sociaux et leurs jetons chiffrés. Ne pas perdre la clé de chiffrement : elle n'est pas stockée dans la base.
+Le frontend et l'API sont liés à `127.0.0.1`. Cette configuration est destinée au développement. Toute l'API, sauf `/api/health`, exige une connexion Google (voir ci-dessous). PostgreSQL conserve les comptes sociaux et leurs jetons chiffrés. Ne pas perdre la clé de chiffrement : elle n'est pas stockée dans la base.
+
+## Connexion à Orbita (Google)
+
+Orbita n'accepte que les comptes Google listés dans `ORBITA_ALLOWED_EMAILS`, par défaut `giovannicarre49@gmail.com`. Pour l'activer :
+
+1. Dans la [Google Cloud Console](https://console.cloud.google.com/apis/credentials), configurer l'écran de consentement OAuth (type « Externe », ajouter son adresse comme utilisateur test), puis créer un « ID client OAuth » de type « Application Web ».
+2. Ajouter l'URI de redirection autorisée `<ORBITA_API_PUBLIC_URL>/api/auth/google/callback`, en local `http://localhost:8000/api/auth/google/callback`.
+3. Renseigner `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` et `ORBITA_SESSION_SECRET` (`openssl rand -hex 32`) dans `.env`, puis redémarrer.
+
+La session dure 30 jours dans un cookie signé `HttpOnly`, marqué `Secure` quand l'API est en HTTPS. Changer `ORBITA_SESSION_SECRET` déconnecte toutes les sessions ; retirer une adresse de `ORBITA_ALLOWED_EMAILS` coupe immédiatement son accès. Sans configuration Google, la page de connexion l'indique et personne ne peut entrer.
 
 ## Connexion Instagram et Facebook
 
