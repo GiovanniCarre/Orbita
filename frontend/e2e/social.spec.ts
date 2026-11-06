@@ -35,5 +35,7 @@ test("refuse un fichier qui n'est pas une vidéo", async ({ page }) => {
     mimeType: "image/png",
     buffer: Buffer.from("test"),
   });
-  await expect(page.getByRole("alert")).toContainText("fichier vidéo non vide");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "fichier vidéo non vide" }),
+  ).toBeVisible();
 });
