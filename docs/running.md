@@ -2,6 +2,8 @@
 
 Copier `.env.example` vers `.env`, définir un mot de passe PostgreSQL local et générer `META_TOKEN_ENCRYPTION_KEY` avec `openssl rand -hex 32`. `scripts\run.cmd` construit et démarre les services Docker. `docker compose down` les arrête sans effacer les données. La commande avec `-v` efface les volumes : ne pas l'utiliser sans sauvegarde.
 
+`ORBITA_MODULES` choisit les modules activés, par exemple `ORBITA_MODULES=social` ; vide, tous les modules sont actifs. Redémarrer l'API après modification.
+
 Le frontend et l'API sont liés à `127.0.0.1`. Cette configuration est destinée au développement, sans authentification et ne doit pas être exposée sur Internet. PostgreSQL conserve les comptes sociaux et leurs jetons chiffrés. Ne pas perdre la clé de chiffrement : elle n'est pas stockée dans la base.
 
 ## Connexion Instagram et Facebook

@@ -39,7 +39,6 @@
 
 <svelte:head><title>Réseaux sociaux — Orbita</title></svelte:head>
 <main>
-  <a class="back" href="/">← Tableau de bord</a>
   <p class="eyebrow">SPORTCOOKS · RÉSEAUX SOCIAUX</p>
   <h1>Préparer une vidéo</h1>
   <p class="intro">
@@ -125,29 +124,16 @@
 </main>
 
 <style>
-  :global(*) {
-    box-sizing: border-box;
-  }
-  :global(body) {
-    margin: 0;
-    background: #10131d;
-    color: #f5f4f0;
-    font-family: Arial, sans-serif;
-  }
   main {
     max-width: 1120px;
     margin: auto;
     padding: 40px 32px 80px;
   }
-  .back {
-    color: #c4b7ef;
-    text-decoration: none;
-  }
   .eyebrow {
     color: #b7a5ee;
     font-size: 0.72rem;
     letter-spacing: 0.16em;
-    margin-top: 64px;
+    margin-top: 24px;
   }
   h1 {
     font-size: clamp(2.4rem, 5vw, 4rem);

@@ -48,6 +48,11 @@ def check() -> list[str]:
             if path.suffix in {".ts", ".svelte"} and re.search(r"\bany\b", text):
                 errors.append(f"{path.relative_to(ROOT)} : 'any' interdit")
             check_imports(path, text, errors)
+            check_frontend_imports(path, text, errors)
+    for module in (ROOT / "backend/app/modules").iterdir():
+        if module.is_dir() and module.name not in IGNORE:
+            if not (module / "module.py").is_file():
+                errors.append(f"{module.relative_to(ROOT)} : module.py manquant")
     package = json.loads((ROOT / "frontend/package.json").read_text(encoding="utf-8"))
     for group in ("dependencies", "devDependencies"):
         for name, version in package.get(group, {}).items():
@@ -85,6 +90,36 @@ def check_imports(path: Path, text: str, errors: list[str]) -> None:
             match = re.match(r"app\.modules\.([a-zA-Z_][\w]*)", name)
             if match and match.group(1) != current:
                 errors.append(f"{path.relative_to(ROOT)} : import interdit vers {name}")
+
+
+FRONTEND_IMPORT = re.compile(r"""(?:\bfrom\s*|\bimport\s*\(?\s*)["']([^"']+)["']""")
+
+
+def frontend_module(path: Path) -> str | None:
+    """Module owning a file in frontend/src/lib/<module>/ or frontend/src/routes/<module>/."""
+    for base in ("lib", "routes"):
+        folder = ROOT / "frontend/src" / base
+        if path.is_relative_to(folder) and len(path.relative_to(folder).parts) > 1:
+            return path.relative_to(folder).parts[0]
+    return None
+
+
+def check_frontend_imports(path: Path, text: str, errors: list[str]) -> None:
+    current = frontend_module(path)
+    if path.suffix not in {".ts", ".js", ".svelte"} or current is None:
+        return
+    for specifier in FRONTEND_IMPORT.findall(text):
+        if specifier.startswith("$lib/"):
+            target = ROOT / "frontend/src/lib" / specifier.removeprefix("$lib/")
+        elif specifier.startswith("."):
+            target = Path(os.path.normpath(path.parent / specifier))
+        else:
+            continue
+        owner = frontend_module(target)
+        if owner is not None and owner != current:
+            errors.append(
+                f"{path.relative_to(ROOT)} : import interdit vers {specifier}"
+            )
 
 
 if __name__ == "__main__":
