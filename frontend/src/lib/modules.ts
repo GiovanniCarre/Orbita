@@ -7,6 +7,7 @@ export type FrontendModule = {
 // Every module the interface knows about; the API says which ones are enabled.
 export const modules: FrontendModule[] = [
   { id: "overview", label: "Tableau de bord", href: "/" },
+  { id: "mail", label: "Messages", href: "/mail" },
   { id: "social", label: "Réseaux sociaux", href: "/social" },
 ];
 

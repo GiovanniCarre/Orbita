@@ -6,6 +6,12 @@ Copier `.env.example` vers `.env`, définir un mot de passe PostgreSQL local et 
 
 `ORBITA_MODULES` choisit les modules activés, par exemple `ORBITA_MODULES=social` ; vide, tous les modules sont actifs. Redémarrer l'API après modification.
 
+## Messages Gmail
+
+Le module `mail` lit les messages Gmail destinés à SportCooks et permet d'en envoyer après confirmation. Il ne conserve pas le contenu des messages. Dans Google Cloud, activer l'API Gmail, créer un client OAuth de type application Web et autoriser l'URI `<ORBITA_API_PUBLIC_URL>/api/mail/google/callback`. L'écran de consentement doit autoriser les comptes Gmail utilisés. Renseigner `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, une clé indépendante `GMAIL_TOKEN_ENCRYPTION_KEY` d'au moins 32 caractères et `GMAIL_SPORTCOOKS_ADDRESS`, puis redémarrer l'API. Conserver la clé de chiffrement hors du serveur pour pouvoir restaurer les connexions depuis une sauvegarde.
+
+Sur l'écran Messages, connecter chaque compte Google et accepter les accès à la lecture et à l'envoi. Google autorise la lecture de toute la boîte ; Orbita limite sa recherche et son affichage aux e-mails dont les champs À ou Cc contiennent exactement l'adresse du projet. Les messages dont cette adresse est absente de ces champs, notamment certains transferts ou copies cachées, peuvent ne pas apparaître. Le module affiche les 30 premiers résultats retournés par Gmail. Les messages partent de l'adresse Gmail choisie, pas automatiquement de l'adresse SportCooks ; les pièces jointes ne sont pas encore prises en charge. En cas d'envoi incertain, vérifier les messages envoyés avant une nouvelle tentative. Retirer le compte efface le jeton local ; révoquer l'autorisation elle-même se fait dans le compte Google. Ne pas journaliser les paramètres de la requête OAuth de retour sur le proxy.
+
 Le frontend et l'API sont liés à `127.0.0.1`. Cette configuration est destinée au développement. Toute l'API, sauf `/api/health`, exige une connexion (voir ci-dessous). PostgreSQL conserve les comptes sociaux et leurs jetons chiffrés. Ne pas perdre la clé de chiffrement : elle n'est pas stockée dans la base.
 
 ## Connexion à Orbita

@@ -5,6 +5,7 @@ test("lists the enabled modules in the navigation", async ({ page }) => {
   const nav = page.getByRole("navigation", { name: "Modules" });
   await expect(nav.getByRole("link")).toHaveText([
     "Tableau de bord",
+    "Messages",
     "Réseaux sociaux",
   ]);
 });

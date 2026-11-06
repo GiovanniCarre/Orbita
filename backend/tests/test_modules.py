@@ -15,12 +15,12 @@ BACKEND = Path(__file__).resolve().parents[1]
 
 
 def test_every_module_package_is_discovered():
-    assert available_modules() == ["overview", "social"]
+    assert available_modules() == ["mail", "overview", "social"]
 
 
 def test_all_modules_are_enabled_by_default(monkeypatch):
     monkeypatch.delenv("ORBITA_MODULES", raising=False)
-    assert configured_modules() == ["overview", "social"]
+    assert configured_modules() == ["mail", "overview", "social"]
 
 
 def test_setting_selects_modules(monkeypatch):
