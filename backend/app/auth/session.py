@@ -1,4 +1,8 @@
-"""Stateless session tokens: base64url(JSON payload) + "." + HMAC-SHA256 signature."""
+"""Stateless session tokens: base64url(JSON payload) + "." + HMAC-SHA256 signature.
+
+The payload carries a fingerprint of the password hash, so changing the password
+invalidates every existing session.
+"""
 
 import base64
 import hashlib
@@ -8,20 +12,20 @@ import time
 
 from fastapi import Request
 
-from app.auth.config import SESSION_COOKIE, allowed_emails, session_secret
+from app.auth.config import SESSION_COOKIE, login_email, password_hash, session_secret
 
 SESSION_DURATION = 30 * 24 * 3600
 
 
 def create_token(email: str, now: float | None = None) -> str:
     expires = int((time.time() if now is None else now) + SESSION_DURATION)
-    payload = json.dumps({"email": email.lower(), "exp": expires}).encode()
-    encoded = base64.urlsafe_b64encode(payload).decode().rstrip("=")
+    payload = {"email": email.lower(), "exp": expires, "pwd": password_fingerprint()}
+    encoded = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
     return f"{encoded}.{_sign(encoded)}"
 
 
 def read_token(token: str, now: float | None = None) -> str | None:
-    """Return the email of a valid, unexpired session for an allowed account."""
+    """Return the email of a valid, unexpired session for the configured account."""
     if len(session_secret()) < 32 or token.count(".") != 1:
         return None
     encoded, signature = token.split(".")
@@ -29,16 +33,22 @@ def read_token(token: str, now: float | None = None) -> str | None:
         return None
     try:
         payload = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
-        email, expires = str(payload["email"]), int(payload["exp"])
+        email, expires, fingerprint = str(payload["email"]), int(payload["exp"]), payload["pwd"]
     except (ValueError, KeyError, TypeError):
         return None
-    if expires <= (time.time() if now is None else now) or email not in allowed_emails():
+    if expires <= (time.time() if now is None else now):
+        return None
+    if email != login_email() or fingerprint != password_fingerprint():
         return None
     return email
 
 
 def current_email(request: Request) -> str | None:
     return read_token(request.cookies.get(SESSION_COOKIE, ""))
+
+
+def password_fingerprint() -> str:
+    return hashlib.sha256(password_hash().encode()).hexdigest()[:16]
 
 
 def _sign(encoded: str) -> str:

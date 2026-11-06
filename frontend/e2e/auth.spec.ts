@@ -1,17 +1,24 @@
 import { expect, test } from "@playwright/test";
-import { sessionToken } from "./fixtures";
+import { e2eAuth, sessionToken } from "./fixtures";
 
-test("asks a signed-out visitor to sign in with Google", async ({ page }) => {
+test("signs in with email and password, then signs out", async ({ page }) => {
   await page.goto("/social");
-  await expect(
-    page.getByRole("link", { name: "Se connecter avec Google" }),
-  ).toHaveAttribute("href", "/api/auth/google/login");
   await expect(page.getByLabel("Fichier vidéo")).toHaveCount(0);
+  await page.getByLabel("Adresse e-mail").fill(e2eAuth.email);
+  await page.getByLabel("Mot de passe").fill(e2eAuth.password);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await expect(page.getByLabel("Fichier vidéo")).toBeVisible();
+  await expect(page.getByText(e2eAuth.email)).toBeVisible();
+  await page.getByRole("button", { name: "Se déconnecter" }).click();
+  await expect(page.getByLabel("Mot de passe")).toBeVisible();
 });
 
-test("explains a refused account", async ({ page }) => {
-  await page.goto("/?auth=denied");
-  await expect(page.getByRole("alert")).toContainText("pas autorisé");
+test("refuses a wrong password", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Adresse e-mail").fill(e2eAuth.email);
+  await page.getByLabel("Mot de passe").fill("not the password");
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await expect(page.getByRole("alert")).toContainText("incorrect");
 });
 
 test("refuses a session for another account", async ({ context, page }) => {
@@ -24,7 +31,5 @@ test("refuses a session for another account", async ({ context, page }) => {
     },
   ]);
   await page.goto("/");
-  await expect(
-    page.getByRole("link", { name: "Se connecter avec Google" }),
-  ).toBeVisible();
+  await expect(page.getByLabel("Mot de passe")).toBeVisible();
 });

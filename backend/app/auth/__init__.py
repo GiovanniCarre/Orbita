@@ -1,1 +1,1 @@
-"""Core authentication: Google sign-in restricted to an allow-list of emails."""
+"""Core authentication: one email and a hashed password, configured in the environment."""

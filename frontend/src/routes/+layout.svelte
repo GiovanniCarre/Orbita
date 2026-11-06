@@ -2,7 +2,7 @@
   import { onMount, type Snippet } from "svelte";
   import { page } from "$app/state";
   import Login from "$lib/Login.svelte";
-  import { authMessage, loadSession, logout, type Session } from "$lib/auth";
+  import { loadSession, logout, type Session } from "$lib/auth";
   import {
     loadEnabledModules,
     moduleForPath,
@@ -58,7 +58,7 @@
 {#if status === "loading"}
   <p class="loading">Chargement…</p>
 {:else if status === "signed-out"}
-  <Login message={authMessage(page.url.searchParams.get("auth"))} />
+  <Login />
 {:else if disabled}
   <main class="disabled">
     <h1>Module désactivé</h1>

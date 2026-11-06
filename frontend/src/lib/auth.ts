@@ -1,12 +1,10 @@
 export type Session = { email: string };
 
-export const loginUrl = "/api/auth/google/login";
-
-const messages: Record<string, string> = {
-  denied: "Ce compte Google n’est pas autorisé à utiliser Orbita.",
-  failed: "La connexion Google a échoué. Réessayez.",
-  not_configured:
-    "La connexion Google n’est pas configurée sur ce serveur (voir docs/running.md).",
+const loginErrors: Record<number, string> = {
+  401: "Adresse ou mot de passe incorrect.",
+  422: "Adresse ou mot de passe incorrect.",
+  429: "Trop de tentatives. Réessayez dans quelques minutes.",
+  503: "La connexion n’est pas configurée sur ce serveur (voir docs/running.md).",
 };
 
 export async function loadSession(
@@ -18,11 +16,23 @@ export async function loadSession(
   return (await response.json()) as Session;
 }
 
+export async function login(
+  email: string,
+  password: string,
+  fetcher: typeof fetch = fetch,
+): Promise<Session> {
+  const response = await fetcher("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!response.ok) {
+    throw new Error(loginErrors[response.status] ?? "Connexion impossible.");
+  }
+  return (await response.json()) as Session;
+}
+
 export async function logout(fetcher: typeof fetch = fetch): Promise<void> {
   const response = await fetcher("/api/auth/logout", { method: "POST" });
   if (!response.ok) throw new Error("Déconnexion impossible");
-}
-
-export function authMessage(outcome: string | null): string {
-  return outcome ? (messages[outcome] ?? "") : "";
 }

@@ -1,21 +1,31 @@
-import secrets
+import hmac
+import threading
+import time
 
 from fastapi import APIRouter, HTTPException, Request, Response
-from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 
-from app.auth import google
 from app.auth.config import (
-    CALLBACK_PATH,
     SESSION_COOKIE,
-    STATE_COOKIE,
-    allowed_emails,
-    frontend_public_url,
-    google_ready,
+    login_email,
+    login_ready,
+    password_hash,
     secure_cookies,
 )
+from app.auth.password import verify_password
 from app.auth.session import SESSION_DURATION, create_token, current_email
 
+MAX_FAILURES = 5
+FAILURE_WINDOW = 15 * 60
+
 router = APIRouter(prefix="/auth")
+_failures: dict[str, list[float]] = {}
+_lock = threading.Lock()
+
+
+class Credentials(BaseModel):
+    email: str
+    password: str
 
 
 @router.get("/me")
@@ -26,38 +36,21 @@ def me(request: Request) -> dict[str, str]:
     return {"email": email}
 
 
-@router.get("/google/login")
-def login() -> RedirectResponse:
-    if not google_ready():
-        return _back("not_configured")
-    state = secrets.token_urlsafe(32)
-    response = RedirectResponse(google.authorization_url(state), status_code=303)
-    response.set_cookie(
-        STATE_COOKIE,
-        state,
-        max_age=600,
-        httponly=True,
-        secure=secure_cookies(),
-        samesite="lax",
-        path=CALLBACK_PATH,
-    )
-    return response
-
-
-@router.get("/google/callback")
-def callback(request: Request, code: str = "", state: str = "") -> RedirectResponse:
-    expected = request.cookies.get(STATE_COOKIE, "")
-    if not (google_ready() and code and state and expected) or not secrets.compare_digest(
-        state, expected
-    ):
-        return _back("failed", clear_state=True)
-    try:
-        email = google.verified_email(code)
-    except Exception:
-        return _back("failed", clear_state=True)
-    if email is None or email not in allowed_emails():
-        return _back("denied", clear_state=True)
-    response = _back(None, clear_state=True)
+@router.post("/login")
+def login(credentials: Credentials, request: Request, response: Response) -> dict[str, str]:
+    if not login_ready():
+        raise HTTPException(status_code=503, detail="Connexion non configurée")
+    client = request.client.host if request.client else "unknown"
+    if _blocked(client):
+        raise HTTPException(status_code=429, detail="Trop de tentatives")
+    email = credentials.email.strip().lower()
+    # Always verify the password so a wrong email takes as long as a wrong password.
+    valid_password = verify_password(credentials.password, password_hash())
+    if not (valid_password and hmac.compare_digest(email, login_email())):
+        _record_failure(client)
+        raise HTTPException(status_code=401, detail="Adresse ou mot de passe incorrect")
+    with _lock:
+        _failures.pop(client, None)
     response.set_cookie(
         SESSION_COOKIE,
         create_token(email),
@@ -67,7 +60,7 @@ def callback(request: Request, code: str = "", state: str = "") -> RedirectRespo
         samesite="lax",
         path="/",
     )
-    return response
+    return {"email": email}
 
 
 @router.post("/logout", status_code=204)
@@ -77,9 +70,15 @@ def logout() -> Response:
     return response
 
 
-def _back(outcome: str | None, clear_state: bool = False) -> RedirectResponse:
-    suffix = f"/?auth={outcome}" if outcome else "/"
-    response = RedirectResponse(f"{frontend_public_url()}{suffix}", status_code=303)
-    if clear_state:
-        response.delete_cookie(STATE_COOKIE, path=CALLBACK_PATH)
-    return response
+def _blocked(client: str) -> bool:
+    with _lock:
+        recent = [
+            moment for moment in _failures.get(client, []) if moment > time.time() - FAILURE_WINDOW
+        ]
+        _failures[client] = recent
+        return len(recent) >= MAX_FAILURES
+
+
+def _record_failure(client: str) -> None:
+    with _lock:
+        _failures.setdefault(client, []).append(time.time())

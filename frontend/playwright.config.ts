@@ -12,7 +12,8 @@ export default defineConfig({
       reuseExistingServer: false,
       env: {
         ORBITA_SESSION_SECRET: e2eAuth.secret,
-        ORBITA_ALLOWED_EMAILS: e2eAuth.email,
+        ORBITA_LOGIN_EMAIL: e2eAuth.email,
+        ORBITA_PASSWORD_HASH: e2eAuth.passwordHash,
       },
     },
     {

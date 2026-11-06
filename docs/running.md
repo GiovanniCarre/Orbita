@@ -4,17 +4,17 @@ Copier `.env.example` vers `.env`, définir un mot de passe PostgreSQL local et 
 
 `ORBITA_MODULES` choisit les modules activés, par exemple `ORBITA_MODULES=social` ; vide, tous les modules sont actifs. Redémarrer l'API après modification.
 
-Le frontend et l'API sont liés à `127.0.0.1`. Cette configuration est destinée au développement. Toute l'API, sauf `/api/health`, exige une connexion Google (voir ci-dessous). PostgreSQL conserve les comptes sociaux et leurs jetons chiffrés. Ne pas perdre la clé de chiffrement : elle n'est pas stockée dans la base.
+Le frontend et l'API sont liés à `127.0.0.1`. Cette configuration est destinée au développement. Toute l'API, sauf `/api/health`, exige une connexion (voir ci-dessous). PostgreSQL conserve les comptes sociaux et leurs jetons chiffrés. Ne pas perdre la clé de chiffrement : elle n'est pas stockée dans la base.
 
-## Connexion à Orbita (Google)
+## Connexion à Orbita
 
-Orbita n'accepte que les comptes Google listés dans `ORBITA_ALLOWED_EMAILS`, par défaut `giovannicarre49@gmail.com`. Pour l'activer :
+Orbita a un seul compte : l'adresse `ORBITA_LOGIN_EMAIL` (par défaut `giovannicarre49@gmail.com`) et un mot de passe dont seule l'empreinte scrypt est conservée dans `.env`. Pour l'activer :
 
-1. Dans la [Google Cloud Console](https://console.cloud.google.com/apis/credentials), configurer l'écran de consentement OAuth (type « Externe », ajouter son adresse comme utilisateur test), puis créer un « ID client OAuth » de type « Application Web ».
-2. Ajouter l'URI de redirection autorisée `<ORBITA_API_PUBLIC_URL>/api/auth/google/callback`, en local `http://localhost:8000/api/auth/google/callback`.
-3. Renseigner `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` et `ORBITA_SESSION_SECRET` (`openssl rand -hex 32`) dans `.env`, puis redémarrer.
+1. Générer `ORBITA_SESSION_SECRET` avec `openssl rand -hex 32` et le mettre dans `.env`.
+2. Générer l'empreinte du mot de passe (12 caractères minimum) : `docker compose run --rm --build -it backend python -m app.auth.password`, ou sans Docker `python -m app.auth.password` depuis `backend/`. Copier la ligne `ORBITA_PASSWORD_HASH=…` affichée dans `.env`.
+3. Redémarrer Orbita (`scriptsun.cmd`) et se connecter.
 
-La session dure 30 jours dans un cookie signé `HttpOnly`, marqué `Secure` quand l'API est en HTTPS. Changer `ORBITA_SESSION_SECRET` déconnecte toutes les sessions ; retirer une adresse de `ORBITA_ALLOWED_EMAILS` coupe immédiatement son accès. Sans configuration Google, la page de connexion l'indique et personne ne peut entrer.
+La session dure 30 jours dans un cookie signé `HttpOnly`, marqué `Secure` quand l'API est en HTTPS. Changer le mot de passe ou `ORBITA_SESSION_SECRET` déconnecte toutes les sessions. Après 5 échecs en 15 minutes, l'adresse IP est bloquée pour le reste de cette période (compteur en mémoire, remis à zéro au redémarrage). Sans configuration, la page de connexion indique que la connexion n'est pas configurée et personne ne peut entrer.
 
 ## Connexion Instagram et Facebook
 
